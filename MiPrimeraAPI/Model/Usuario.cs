@@ -16,4 +16,10 @@ namespace MiPrimeraAPI.Model
         public string Mail { get; set; }
 
     }
+
+    public class UsuarioValidar
+    {
+        public string NombreUsuario { get; set; }
+        public string Contraseña { get; set; }
+    }
 }

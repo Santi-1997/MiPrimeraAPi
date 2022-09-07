@@ -157,5 +157,45 @@ namespace MiPrimeraAPI.Repository
 
             return resultado;
         }
+
+        public static bool ValidarUsuario(UsuarioValidar usuarioValidar)
+        {
+            bool resultado = false;
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            {
+                string queryInsert = "SELECT * FROM Usuario " +
+                    "WHERE NombreUsuario = @nombreUsuarioParameter " +
+                    "AND Contraseña = @contraseñaParameter";
+
+                SqlParameter nombreUsuarioParameter = new SqlParameter("nombreUsuarioParameter", SqlDbType.VarChar);
+                SqlParameter contraseñaParameter = new SqlParameter("contraseñaParameter", SqlDbType.VarChar);
+
+                nombreUsuarioParameter.Value = usuarioValidar.NombreUsuario;
+                contraseñaParameter.Value = usuarioValidar.Contraseña;
+
+                sqlConnection.Open();
+
+                using (SqlCommand sqlCommand = new SqlCommand(queryInsert, sqlConnection))
+                {
+                    sqlCommand.Parameters.Add(nombreUsuarioParameter);
+                    sqlCommand.Parameters.Add(contraseñaParameter);
+                    using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+                    {
+                        if (dataReader.HasRows)
+                        {
+                            resultado = true;
+                        }
+                    }
+
+                }
+
+                sqlConnection.Close();
+            }
+
+            return resultado;
+        }
+    
     }
+
+    
 }

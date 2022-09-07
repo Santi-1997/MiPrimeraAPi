@@ -8,27 +8,30 @@ namespace MiPrimeraAPI.Repository
     {
         public const string ConnectionString = "Server=DESKTOP-DP5P25Q;Database=SistemaGestion;Trusted_Connection=True";
 
-        public static List<Venta> GetVentas()
+        public static List<VentaConProducto> GetVentas()
         {
-            List<Venta> resultados = new List<Venta>();
+            List<VentaConProducto> resultados = new List<VentaConProducto>();
 
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
             {
-                using (SqlCommand sqlCommand = new SqlCommand("SELECT * FROM Venta", sqlConnection))
+                using (SqlCommand sqlCommand = new SqlCommand("SELECT * FROM Venta AS V " +
+                    "INNER JOIN ProductoVendido AS PV ON V.Id = PV.IdVenta " +
+                    "INNER JOIN Producto AS P ON P.Id = PV.IdProducto", sqlConnection))
                 {
                     sqlConnection.Open();
 
                     using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
                     {
-                        // Me asegyri que haya filas
+                        // Me aseguro que haya filas
                         if (dataReader.HasRows)
                         {
                             while (dataReader.Read())
                             {
-                                Venta venta = new Venta();
+                                VentaConProducto venta = new VentaConProducto();
 
-                                venta.Id = Convert.ToInt32(dataReader["Id"]);
-                                venta.Comentarios = dataReader["Comentarios"].ToString();
+                                venta.Venta.Id = Convert.ToInt32(dataReader["Id"]);
+                                venta.Venta.Comentarios = dataReader["Comentarios"].ToString();
+                                venta.DescripcionProducto = dataReader["Descripciones"].ToString();
 
                                 resultados.Add(venta);
                             }
@@ -40,6 +43,46 @@ namespace MiPrimeraAPI.Repository
             }
             return resultados;
         }
+        public static bool EliminarVenta(int id)
+        {
+            bool resultado = false;
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            {
+                string queryDelete = "DELETE V FROM Venta AS V " +
+                    "WHERE @id = V.Id ";
+                SqlParameter idParameter = new SqlParameter("id", System.Data.SqlDbType.BigInt);
+                idParameter.Value = id;
+
+                sqlConnection.Open();
+
+                using (SqlCommand sqlCommand = new SqlCommand(queryDelete, sqlConnection))
+                {
+                    sqlCommand.Parameters.Add(idParameter);
+                    int numberOfRows = sqlCommand.ExecuteNonQuery();
+                    if (numberOfRows > 0)
+                    {
+                        resultado = true;
+                    }
+                }
+
+                sqlConnection.Close();
+            }
+
+            return resultado;
+        }
 
     }
+
+    public class VentaConProducto
+    {
+        public Venta Venta { get; set; }
+        public string DescripcionProducto { get; set; }
+
+        public VentaConProducto()
+        {
+            Venta = new Venta();
+        }
+    }
 }
+
+

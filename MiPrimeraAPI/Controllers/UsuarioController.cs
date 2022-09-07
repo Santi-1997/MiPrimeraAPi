@@ -63,5 +63,24 @@ namespace MiPrimeraAPI.Controllers
                 return false;
             }
         }
+
+        [HttpPost("{NombreUsuario}/{Contraseña}")]
+        public bool ValidarUsuario([FromBody] UsuarioValidar usuarioValidar)
+        {
+            try
+            {
+                return UsuarioHandler.ValidarUsuario(new UsuarioValidar
+                {
+                    NombreUsuario = usuarioValidar.NombreUsuario,
+                    Contraseña = usuarioValidar.Contraseña
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
     }
 }

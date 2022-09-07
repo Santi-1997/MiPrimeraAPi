@@ -10,9 +10,24 @@ namespace MiPrimeraAPI.Controllers
     public class VentaController : ControllerBase
     {
         [HttpGet]
-        public List<Venta> GetVentas()
+        public List<VentaConProducto> GetVentas()
         {
             return VentaHandler.GetVentas();
+        }
+
+        [HttpDelete]
+        public bool EliminarVenta([FromBody] int id)
+        {
+            try
+            {
+                return VentaHandler.EliminarVenta(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+
         }
     }
 }
